@@ -85,10 +85,4 @@ self.entropy_loss = self.entropy_loss.sum(-1)
 
 ### Conclusion
 
-   The time complexity of DiffPool is $$O(n_{l+1}\times n_{l}\times d+3\times n_{l}^{2}\times n_{l+1})=O(k\times n_{l}^{2}\times d+k\times n_{l}^{3})$$
-
-   
-
-
-
-
+   The time complexity of DiffPool is <img src="http://latex.codecogs.com/gif.latex?O(n_{l+1}\times n_{l}\times d+3\times n_{l}^{2}\times n_{l+1})=O(k\times n_{l}^{2}\times d+k\times n_{l}^{3})" />
