@@ -15,7 +15,7 @@ The notes for this part of my study are as follows, a more readable version of P
       - review paper
        	    <details>
        	            <summary>problem in reading</summary>
-       	                  	diffusion process<br>       
+       	                  	diffusion process<br>
        	                  	what is a parameterization with smooth coefficients<br>
        	                  	K-localized
        	                </details>
