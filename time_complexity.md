@@ -11,7 +11,6 @@ if we consider the l-th layer in the GNN, then the operation includes:
 |L|total number of layers|
 |l|l-th layer|
 <center>Table 1. Notations</center>
-
 1. BatchedGraphSAGE model: 
 
    code:
@@ -38,8 +37,7 @@ s_l = F.softmax(self.assign_mat(x, adj), dim=-1)
 
 The softmax operation includes exponentiation, addition, and division. Time complexity is
 
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
-$$O(n_{l}\times n_{l+1}+n_{l}\times n_{l+1}+n_{l})=O(k\times n^{2})$$
+<img src="http://latex.codecogs.com/gif.latex?O(n_{l}\times n_{l+1}+n_{l}\times n_{l+1}+n_{l})=O(k\times n_{l}^{2})" />
 
 3. Matrix multiplication
 
@@ -51,7 +49,7 @@ anext = (s_l.transpose(-1, -2)).matmul(adj).matmul(s_l)
 ...
 self.link_pred_loss = (adj - s_l.matmul(s_l.transpose(-1, -2))).norm(dim=(1, 2))
 ```
-   $$O(n_{l+1}\times n_{l}\times d+3\times n_{l}^{2}\times n_{l+1})=O(k\times n_{l}^{2}\times d+k\times n_{l}^{3})$$
+<img src="http://latex.codecogs.com/gif.latex?O(n_{l+1}\times n_{l}\times d+3\times n_{l}^{2}\times n_{l+1})=O(k\times n_{l}^{2}\times d+k\times n_{l}^{3})" />
 
 4. Matrix subtraction
 
@@ -61,7 +59,7 @@ self.link_pred_loss = (adj - s_l.matmul(s_l.transpose(-1, -2))).norm(dim=(1, 2))
 self.link_pred_loss = (adj - s_l.matmul(s_l.transpose(-1, -2))).norm(dim=(1, 2))
 ```
 
-   $$O(n_{l}\times n_{l})=O(n_{l}^{2})$$
+<img src="http://latex.codecogs.com/gif.latex?O(n_{l}\times n_{l})=O(n_{l}^{2})" />
 
 5. Frobenius norm
 
@@ -70,7 +68,7 @@ self.link_pred_loss = (adj - s_l.matmul(s_l.transpose(-1, -2))).norm(dim=(1, 2))
 self.link_pred_loss = (adj - s_l.matmul(s_l.transpose(-1, -2))).norm(dim=(1, 2))
 ```
 
-   $$O(n_{l}\times n_{l})=O(n_{l}^{2})$$
+<img src="http://latex.codecogs.com/gif.latex?O(n_{l}\times n_{l})=O(n_{l}^{2})" />
 
 6. entropy function
    
@@ -83,7 +81,7 @@ if mask is not None:
 self.entropy_loss = self.entropy_loss.sum(-1)
 ```
 
-   $$O(n_{l+1}\times n_{l+1})=O(n_{l+1}^{2})$$
+<img src="http://latex.codecogs.com/gif.latex?O(n_{l+1}\times n_{l+1})=O(n_{l+1}^{2})" />
 
 ### Conclusion
 
