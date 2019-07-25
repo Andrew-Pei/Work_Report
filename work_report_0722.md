@@ -1,23 +1,18 @@
-### Work report:
+# Work report:
 
-This week, I mainly worked on clarifying concepts and reading literature. What I
-did could be divided into 2 parts: make a foundation for studying graph pooling
-and investigate graph pooling.
+This week, I mainly worked on clarifying concepts and reading literature. What I did could be divided into 2 parts: make a foundation for studying graph pooling and investigate graph pooling.
 
-The notes for this part of my study are as follows, a more readable version of
-pdf is in the attachment.
+The notes for this part of my study are as follows, a more readable version of pdf is in the attachment.
 
-1.  GNN foundation:
+## GNN foundation:
 
-papers
+- papers
 
-website
+  - website
 
-review
-
-strongly recommended
-
-revier paper
+  - review
+    - strongly recommended
+      - review paper
 
 problem in reading
 
@@ -227,7 +222,7 @@ Self-attention mask Attention mechanisms
 
 graph convolution
 
-### Plans of next week:
+# Plans of next week:
 
 Next week, I hope to get started with mathematics derivation and code reading as
 soon as possible.
