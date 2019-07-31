@@ -33,3 +33,10 @@ machine learning algorithms.
 
 N-th power of the adjacency matrix:
 第i行第j个元素表示从i出发走到点j走n步，有多少种走法。
+
+
+
+ﬁrst order approximation: 
+
+second order approximation: 
+
