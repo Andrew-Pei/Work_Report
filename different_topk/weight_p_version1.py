@@ -8,34 +8,20 @@ from ...utils.num_nodes import maybe_num_nodes
 
 
 def topk(x, ratio, batch, min_score=None, tol=1e-7):
-# batch is a column vector which maps each node to its respective graph in the batch:
-# batch=[0 ⋯ 0 1 ⋯ n−2 n−1 ⋯ n−1]⊤
     if min_score is not None:
         # Make sure that we do not drop all nodes in a graph.
         scores_max = scatter_max(x, batch)[0][batch] - tol
-		# result: tensor([2, 2, 2, 4, 4, 4, 4], dtype=torch.int32)
         scores_min = scores_max.clamp(max=min_score)
-		
-		# pytorch.clamp函数：将输入input张量每个元素的夹紧到区间 [min,max]
 
         perm = torch.nonzero(x > scores_min).view(-1)
-		# pytorch.nonzero函数：返回一个包含输入 input 中非零元素索引的张量
-		# torch.view函数旨在reshape张量形状。
     else:
         num_nodes = scatter_add(batch.new_ones(x.size(0)), batch, dim=0)
-		
-		#返回一个tensor，其中每个数字代表每个图的节点数
-        # new_zeros: Returns a Tensor of size size filled with 0. By default, 
-		# the returned Tensor has the same torch.dtype and torch.device as this tensor.
-		batch_size, max_num_nodes = num_nodes.size(0), num_nodes.max().item()
-		# Use torch.Tensor.item() to get a Python number from a tensor containing
-		# a single value
+        batch_size, max_num_nodes = num_nodes.size(0), num_nodes.max().item()
+
         cum_num_nodes = torch.cat(
             [num_nodes.new_zeros(1),
              num_nodes.cumsum(dim=0)[:-1]], dim=0)
-		# cumsum: y_i = x_1 + x_2 + x_3 + \dots + x_i
-		# cat: 
-		# result: [[0],[3]]
+
         index = torch.arange(batch.size(0), dtype=torch.long, device=x.device)
         index = (index - cum_num_nodes[batch]) + (batch * max_num_nodes)
 
@@ -47,9 +33,8 @@ def topk(x, ratio, batch, min_score=None, tol=1e-7):
 
         perm = perm + cum_num_nodes.view(-1, 1)
         perm = perm.view(-1)
-		# 每个图中节点值按照大小进行排序之后的顺序
+
         k = (ratio * num_nodes.to(torch.float)).ceil().to(torch.long)
-		# k为经过一次池化后剩余的num_nodes张量。
         mask = [
             torch.arange(k[i], dtype=torch.long, device=x.device) +
             i * max_num_nodes for i in range(batch_size)
@@ -59,11 +44,11 @@ def topk(x, ratio, batch, min_score=None, tol=1e-7):
         perm = perm[mask]
 
     return perm
-	# 这个函数的入参中scores已经被计算好了（就在x张量里面），只需要排序即可，
+
 
 def filter_adj(edge_index, edge_attr, perm, num_nodes=None):
     num_nodes = maybe_num_nodes(edge_index, num_nodes)
-	# maybe_num_nodes func: return index.max().item() + 1 if num_nodes is None else num_nodes
+
     mask = perm.new_full((num_nodes, ), -1)
     i = torch.arange(perm.size(0), dtype=torch.long, device=perm.device)
     mask[perm] = i
@@ -80,8 +65,8 @@ def filter_adj(edge_index, edge_attr, perm, num_nodes=None):
 
 
 class TopKPooling(torch.nn.Module):
-    r""":math:`\mathrm{top}_k` pooling operator from the `"Graph U-Net"
-    <https://openreview.net/forum?id=HJePRoAct7>`_, `"Towards Sparse
+    r""":math:`\mathrm{top}_k` pooling operator from the `"Graph U-Nets"
+    <https://arxiv.org/abs/1905.05178>`_, `"Towards Sparse
     Hierarchical Graph Classifiers" <https://arxiv.org/abs/1811.01287>`_
     and `"Understanding Attention and Generalization in Graph Neural
     Networks" <https://arxiv.org/abs/1905.02850>`_ papers
@@ -141,28 +126,28 @@ class TopKPooling(torch.nn.Module):
         self.nonlinearity = nonlinearity
 
         self.weight = Parameter(torch.Tensor(2, in_channels))
+		self.weightp = Parameter(torch.Tensor(1))
 
         self.reset_parameters()
 
     def reset_parameters(self):
         size = self.in_channels
-        uniform(size, self.weight)
+        uniform(size, self.weight[0])
+		uniform(size, self.weight[1])
 
     def forward(self, x, edge_index, edge_attr=None, batch=None, attn=None):
         """"""
 
         if batch is None:
             batch = edge_index.new_zeros(x.size(0))
-		# 如果没有batch张量，就证明只有一个图，那么就是这个图的节点数个0就是batch张量
+
         attn = x if attn is None else attn
-		# attn一般是attention的缩写
         attn = attn.unsqueeze(-1) if attn.dim() == 1 else attn
-		# squeeze函数是把张量中长度为1的维度降维打击。unsqueeze函数是插入一个长度为1的维度
-        score = ((attn * self.weight[0]).sum(dim=-1)+(attn * self.weight[1]).sum(dim=-1))/2
-		# score得出四个节点的分数的计算结果，是个1*4的张量。
+        score = ((attn * self.weight[0]).sum(dim=-1)+self.weightp*(attn * self.weight[1]).sum(dim=-1))/(self.weightp+1)
 
         if self.min_score is None:
             score = self.nonlinearity(score / self.weight.norm(p=2, dim=-1))
+			# 暂时没有处理min_score的问题。
         else:
             score = softmax(score, batch)
 
